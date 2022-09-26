@@ -61,7 +61,11 @@ dTranslate:
     type: data
     api:
         #- Set the base url with "http://" or "https://" but without "/" at the end.
+        # Here are two possible APIs that do not need a key but have their downsites.
+        # I recommend using your own liberetranslate server.
+        # "libretranslate.de" has a very low ratelimit of 20!
         # url: https://libretranslate.de
+        # "translate.terraprint.co" has often server errors.
         url: https://translate.terraprint.co
         #- Your API key if you need one. If none is neceserry use "none".
         key: none
@@ -84,7 +88,7 @@ dTranslate:
         # Czech
         - cs
         # Danish
-        - da
+        #- da
         # Dutch
         - nl
         # Esperanto
@@ -134,7 +138,10 @@ dTranslate:
 
 dTranslateFormat:
     type: format
-    format: <[name]><&sq>s chat translated<&co> <[text]>
+    format: <blue><bold>[dTranslate]<reset> <yellow><[text]><reset>
+dTranslateChatFormat:
+    type: format
+    format: <aqua><[name]><white><&sq>s translated<&co> <gray><[text]><reset>
 
 dTranslateTranstask:
     type: task
@@ -143,36 +150,68 @@ dTranslateTranstask:
     script:
         # Get Cache Config
         - define cache <script[dTranslate].data_key[translate.cache.enabled].if_null[true]>
-        - define cacheTime <script[dTranslate].data_key[translate.cache.enabled].if_null[7d].as[duration]>
+        - define cacheTime <script[dTranslate].data_key[translate.cache.time].if_null[7d].as[duration]>
         # Get API stuff
-        - define uri <script[dTranslate].data_key[api.url]>
+        - define uri <script[dTranslate].parsed_key[api.url]>
         - define endpoint translate
         - define url <[uri]>/<[endpoint]>
 
         - if <[cache]> && <server.has_flag[dTranslate.cache.<[chat]>.<[target]>]>:
-            - define <[target]>_txt <server.flag[dTranslate.cache.<[chat]>.<[target]>]>
-        - define s_lang <[source].url_encode>
-        - define t_lang <[target].url_encode>
+            - define trans_txt <server.flag[dTranslate.cache.<[chat]>.<[target]>]>
+        - define s_lang <[source]>
+        - define t_lang <[target]>
         - define format text
-        - define q <[chat].url_encode>
+        - define q <[chat]>
         - definemap headers:
-            Content-Type: application/x-www-form-urlencoded
-        - define data q=<[q]>&source=<[s_lang]>&target=<[t_lang]>
-        - ~webget <[url]> data:<[data]> headers:<[headers]> save:temp_json
-        - if <entry[temp_json].failed>:
-            - if <entry[temp_json].status.is_empty>:
-                - define error "Could not connect to <[url]>"
+            Content-Type: application/json
+        - definemap data:
+            q: <[q]>
+            source: <[s_lang]>
+            target: <[t_lang]>
+        - if !<[trans_txt].exists>:
+            - repeat 10 as:loop:
+                - ~webget <[url]> data:<[data].to_json> method:post headers:<[headers]> save:temp_json timeout:3s
+                - if <entry[temp_json].failed>:
+                    - if !<entry[temp_json].status.exists>:
+                        - if <[loop]> >= 3:
+                            - define error "Could not connect to <[url]>"
+                            - repeat stop
+                        - repeat next
+                    - else if <entry[temp_json].status> == 502:
+                        - if <[loop]> >= 3:
+                            - define error "The server returned a <&dq>502 - BAD GATEWAY<&dq> Error!"
+                            - repeat stop
+                        - repeat next
+                    - else:
+                        - define error "The server returned an error<&co> <&dq><entry[temp_json].result.parse_yaml.get[error]><&dq> | <entry[temp_json].status>"
+                        - repeat stop
+                - else:
+                    - repeat stop
+            - if <[error].exists>:
+                - debug error "<&lb>dTranslate<&rb> <[error].if_null[An error occured!]>"
             - else:
-                - define error "The server returned an error<&co> <&dq><entry[temp_json].result><&dq> | <entry[temp_json].status>"
-            - debug error "<&lb>dTranslate<&rb> <[error].if_null[An error occured!]>"
-        - define trans_txt <entry[temp_json].result.as[map].get[translatedText]>
-        - if <[cache]>:
-            - flag server dTranslate.cache.<[chat]>.<[target]>:<[trans_txt]> expire:<[cacheTime]>
+                - define trans_txt <entry[temp_json].result.parse_yaml.get[translatedText]>
+                - if <[cache]>:
+                    - flag server dTranslate.cache.<[chat]>.<[target]>:<[trans_txt]> expire:<[cacheTime]>
 
 
 dTranslateChat:
     type: world
     debug: true
+    data:
+        hover:
+            de:
+            - <bold><dark_aqua>Automatische Übersetzungen<reset>
+            - <yellow>Dieser Text wurde automatisch übersetzt und ist eventuell fehlerhaft!<reset>
+            - <yellow>Deswegen kann es eventuell zu missverständissen kommen.<reset>
+            - <empty>
+            - <green>Powered by <aqua>LibreTranslate<green>, <aqua>Denizen <green>& <aqua>dTranslate<reset>
+            en:
+            - <bold><dark_aqua>Automatic Translation<reset>
+            - <yellow>This text was automaticly translated and could include errors.<reset>
+            - <yellow>So beware that in rare circustances sentences could be completly wrong translated!<reset>
+            - <empty>
+            - <green>Powered by <aqua>LibreTranslate<green>, <aqua>Denizen <green>& <aqua>dTranslate<reset>
     events:
         after player chats permission:dtranslate.translate.send:
             # Defining stuff
@@ -185,9 +224,6 @@ dTranslateChat:
             - define uri <script[dTranslate].data_key[api.url]>
             - define endpoint translate
             - define url <[uri]>/<[endpoint]>
-            # Get cache settings
-            - define cache <script[dTranslate].data_key[translate.cache.enabled].if_null[true]>
-            - define cacheTime <script[dTranslate].data_key[translate.cache.enabled].if_null[7d].as[duration]>
             # Check if player manually set a language.
             - if <player.has_flag[dTranslate.lang]>:
                 - define lang <player.flag[dTranslate.lang]>
@@ -195,8 +231,25 @@ dTranslateChat:
             # Check if language is enabled.
             - if !<[langList].contains_single[<[lang]>]>:
                 - stop
+            - define trans_map <map>
+            # Put recipients in lang groups
+            - define lang_groups <list>
+            - foreach <[to]>:
+                - if !<[value].has_permission[dtranslate.translate.recieve]>:
+                    - foreach next
+                - define tt_lang <[value].locale.replace_text[regex:_.*]>
+                - if <[value].has_flag[dTranslate.lang]>:
+                    - define tt_lang <[value].flag[dTranslate.lang]>
+                - if !<[langList].contains_single[<[tt_lang]>]> || <[tt_lang]> == <[lang]>:
+                    - foreach next
+                - if <[trans_map].deep_get[<[tt_lang]>.users].exists>:
+                    - define list <[trans_map].deep_get[<[tt_lang]>.users]>
+                - define list:->:<[value]>
+                - define trans_map <[trans_map].deep_with[<[tt_lang]>.users].as[<[list]>]>
+                - if !<[lang_groups].contains_single[<[tt_lang]>]>:
+                    - define lang_groups:->:<[tt_lang]>
             # Get translations
-            - foreach <[langList]> as:source:
+            - foreach <[lang_groups]> as:target:
                 # - if <[cache]> && <server.has_flag[dTranslate.cache.<[chat]>.<[value]>]>:
                 #     - define <[value]>_txt <server.flag[dTranslate.cache.<[chat]>.<[value]>]>
                 # - define s_lang <[lang].url_encode>
@@ -217,25 +270,15 @@ dTranslateChat:
                 - inject dTranslateTranstask
                 - if <entry[temp_json].failed>:
                     - foreach next
-                - define <[target]>_txt <[trans_txt]>
+                - define trans_map <[trans_map].deep_with[<[target]>.txt].as[<[trans_txt]>]>
                 - define <[target]>_list <list>
-                - if <[cache]>:
-                    - flag server dTranslate.cache.<[chat]>.<[value]>:<[<[value]>_txt]> expire:<[cacheTime]>
-            # Put recipients in lang groups
-            - foreach <[to]>:
-                - if !<[value].has_permission[dtranslate.translate.recieve]>:
-                    - foreach next
-                - if !<[langList].contains_single[<[lang]>]>:
-                    - foreach next
-                - define tt_lang <[value].locale.replace_text[regex:_.*]>
-                - if <[value].has_flag[dTranslate.lang]>:
-                    - define tt_lang <[value].flag[dTranslate.lang]>
-                - define <[tt_lang]>_list:->:<[value]>
             # Send translations
-            - foreach <[langlist]>:
-                - if <[<[value]>_list].is_empty>:
-                    - foreach next
-                - narrate <[<[value]>_txt]> from:<player.uuid> targets:<[<[value]>_list]> format:dTranslateFormat
+            - foreach <[lang_groups]> as:txt_lang:
+                - define lang_txt <[trans_map].deep_get[<[txt_lang]>.txt]>
+                - define users <[trans_map].deep_get[<[txt_lang]>.users]>
+                - define hover <script.parsed_key[data.hover.<[txt_lang]>].if_null[<script.parsed_key[data.hover.en]>].separated_by[<&nl>]>
+                - define msg "<[lang_txt]> <&chr[24D8].on_hover[<[hover]>].color[aqua]> "
+                - narrate <[msg]> from:<player.uuid> targets:<[users]> format:dTranslateChatFormat
 
 dTranslateSetlang:
     type: command
@@ -343,7 +386,7 @@ dTranslateTranslate:
         # Get Args
         - define source <context.args.get[1].if_null[auto]>
         - define target <context.args.get[2].if_null[en]>
-        - define txt <context.args.get[3].to[last].if_null[no text]>
+        - define txt <context.args.get[3].to[last].if_null[<list.include_single[no text]>]>
         - define chat <[txt].space_separated>
         - inject dTranslateTranstask
         - define msg "<dark_green><bold>Translated Text:<reset> <dark_green><&dq><aqua><[trans_txt]><dark_green><&dq><reset>"

@@ -15,7 +15,7 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/Spikehidden/dTranslate/total?logo=github&style=flat)](https://github.com/spikehidden/dTranslate/releases/latest)
 [![GitHub stars](https://img.shields.io/github/stars/spikehidden/dTranslate)](https://github.com/spikehidden/dTranslate/stargazers)
 
-## **Config**
+# **Config**
 
 <details>
   <summary>Config in dtranslate.dsc</summary>
@@ -111,7 +111,7 @@ dTranslateChatFormat:
 
 </details>
 
-### **API**
+## **API**
 <details>
     <summary>code</summary>
 
@@ -122,16 +122,16 @@ api:
 ```
 </details>
 
-#### **api.url**
+### **api.url**
 Set the base URI of the server the requests shall be sent to.\
 Don't forget the `https://` or `http://` at the beginning.
 
-#### **api.key**
+### **api.key**
 *It's not possible to add secret data from the [secret.secrets](https://meta.denizenscript.com/Docs/ObjectTypes/SecretTag) file in mapTags. This is why you need to put it in the config. If I'm mistaken please tell me, also tell me if I don't notice when this is changing in the future.*\
 \
 Set it to either `none` or the key that you get provided from the libretranslate server owner.
 
-### **Translate**
+## **Translate**
 <details>
     <summary>code</summary>
 
@@ -173,18 +173,18 @@ translate:
 ```
 </details>
 
-#### **translate.cache.enabled**
+### **translate.cache.enabled**
 Default: `true`\
 \
 It is recommend to set it to true especially if you use one of the free to use servers as the either hav very low ratelimits or sometimes cause other trouble.\
 To avoid that you should activate caching.
 
-#### **translate.cache.time**
+### **translate.cache.time**
 Default: `7d`\
 \
 If caching is enabled how long shall it be cached.
 
-#### **translate.lang**
+### **translate.lang**
 A list of language codes that shall be enabled for translation.\
 Beware that the list is what actually is supposed to be supported by LibreTranslate but some servers might disable language support by themselve.\
 There will be a command in the future which can get you a list of all supported languages of the chosen server and also to choose which one you want to enbable.
@@ -226,12 +226,12 @@ There will be a command in the future which can get you a list of all supported 
 
 </details>
 
-## Planned Features
+# Planned Features
 
 - [ ] Economy Feature
 - [ ] Implemenation other Translation APIs *maybe*
 - [ ] Passthrough Webserver API
 - [ ] Auto language set up command for admin.
 
-## **LICENSE**
+# **LICENSE**
 Licensed under [MIT License](/LICENSE) by [@Spikehidden](https://github.com/spikehidden)

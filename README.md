@@ -273,6 +273,7 @@ Gives access to the `/translation` command. -->
 - [ ] Implemenation other Translation APIs *maybe*
 - [ ] Passthrough Webserver API
 - [ ] Auto language set up command for admin.
+- [ ] Replace chat message mode.
 
 # **LICENSE**
 Licensed under [MIT License](/LICENSE) by [@Spikehidden](https://github.com/spikehidden)

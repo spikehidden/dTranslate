@@ -11,7 +11,7 @@
 [![Ko-Fi - Donate](https://img.shields.io/badge/Ko--Fi-Donate-FF5E5B?logo=Ko-Fi&logoColor=white&color=blue)](https://spikey.biz/kofi)
 [![Twitch - Subscribe](https://img.shields.io/badge/Twitch-Subscribe-9146FF?logo=Twitch&logoColor=white)](https://spikey.biz/twitch)
 
-[![Spiget Stars](https://img.shields.io/spiget/stars/102540?label=spigotmc.org&logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAmklEQVQ4jaVTORKAIAzcOD6CRt9AbWPHv%2F2Bb9CGX8RGHCQHzrgVQ5LdTQgECVbuWpA4GKjJ1NyhJ8W7H%2FcI2lbU1lwHRd1z0W0BAM6wmjFtMFyr1sVz2ETNCKU3rXjK20ugEI29KWvEAEARDICodWCpU5TDpGjM4Miy%2BLbMjQtzE7U3L7kPiUfg4ctf8bGkzEvKDHxcJA%2B%2FCS5YrDUokhVf1AAAAABJRU5ErkJggg%3D%3D&style=flat)](https://www.spigotmc.org/resources/102540/)
+[![Spiget Stars](https://img.shields.io/spiget/stars/105498?label=spigotmc.org&logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAmklEQVQ4jaVTORKAIAzcOD6CRt9AbWPHv%2F2Bb9CGX8RGHCQHzrgVQ5LdTQgECVbuWpA4GKjJ1NyhJ8W7H%2FcI2lbU1lwHRd1z0W0BAM6wmjFtMFyr1sVz2ETNCKU3rXjK20ugEI29KWvEAEARDICodWCpU5TDpGjM4Miy%2BLbMjQtzE7U3L7kPiUfg4ctf8bGkzEvKDHxcJA%2B%2FCS5YrDUokhVf1AAAAABJRU5ErkJggg%3D%3D&style=flat)](https://www.spigotmc.org/resources/105498/)
 [![GitHub all releases](https://img.shields.io/github/downloads/Spikehidden/dTranslate/total?logo=github&style=flat)](https://github.com/spikehidden/dTranslate/releases/latest)
 [![GitHub stars](https://img.shields.io/github/stars/spikehidden/dTranslate)](https://github.com/spikehidden/dTranslate/stargazers)
 

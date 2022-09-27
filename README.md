@@ -226,6 +226,47 @@ There will be a command in the future which can get you a list of all supported 
 
 </details>
 
+# Permissions & Commands
+
+## Permissions
+
+<!-- **`dtranslate.admin`**
+Access to all commands of the script.
+
+`dtranslate.setlang`
+Gives acces to the `/setlang` command
+
+`dtranslate.setlang.other`
+Let's the player set the language of another player.
+
+`dtranslate.toggle`
+Gives acces to the `/toggletranslation` command to toggle if chat messages shall be followed by an translation.
+
+`dtranslate.toggle.other`
+Lets the player toggle the translating status of another player.
+
+`dtranslate.translate`
+Gives access to the `/translation` command. -->
+
+| Permission                     | Description                                                                                                      |
+| :----------------------------: | :--------------------------------------------------------------------------------------------------------------- |
+| `dtranslate.admin`             | Access to all commands of the script.                                                                            |
+| `dtranslate.setlang`           | Gives access to the `/setlang` command                                                                           |
+| `dtranslate.setlang.other`     | Lets the player set the language of another player.                                                              |
+| `dtranslate.toggle`            | Gives access to the `/toggletranslation` command to toggle if chat messages shall be followed by an translation. |
+| `dtranslate.toggle.other`      | Lets the player toggle the translating status of another player.                                                 |
+| `dtranslate.translate.command` | Gives access to the `/translation` command.                                                                      |
+| `dtranslate.translate.send`    | Messages sent by those player gets translated.                                                                   |
+| `dtranslate.translate.recieve` | To those players translated chat messages will be shown.                                                         |
+
+## Commands
+
+| Command             | Alias                                                                 | Usage                                  | Permission           | Description                 |
+| :-----------------: | :-------------------------------------------------------------------: | :------------------------------------- | :------------------: | :-------------------------- |
+| `setlang`           | `setlanguage` <br> `changelanguage`    | /\<command\> \<langCode\> (\<player\>) | dtranslate.setlang   | Used to set your/\<player\>'s language to \[\<langCode\>\] |
+| `toggletranslation` | `translationtoggle` <br> `toggletrans` | /\<command\> (\<player\>)              | dtranslate.toggle    | Used to set your/\<player\> translation status to off/on.  |
+| `translate`         | `trans` | /\<command\> \<fromLangCode\>\|auto \<toLangCode\> \<text\>           | dtranslate.translate.command | Used to translate \<text\> from \<fromLangCode\> to \<toLangCode\>. <br> Use auto instead of \<fromLangCode\> to automaticly determine the language. |
+
 # Planned Features
 
 - [ ] Economy Feature

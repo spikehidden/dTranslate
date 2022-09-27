@@ -388,7 +388,7 @@ dTranslateTranslate:
     - dTranslate:trans
     description: De-/Activate translations.
     usage: /translate <&lb><&lt>fromLanguage<&gt>|auto<&rb> <&lb><&lt>toLanguage<&lt><&rb> <&lb><&lt>text<&lt><&rb>
-    permission: dTranslate.admin;dTranslate.translate
+    permission: dtranslate.admin;dtranslate.translate.command
     tab completions:
         1: <script[dTranslate].data_key[translate.lang].include_single[auto]>
         2: <script[dTranslate].data_key[translate.lang]>

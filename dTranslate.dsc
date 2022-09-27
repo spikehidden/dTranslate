@@ -33,15 +33,12 @@
 # +---------------------------------+
 #
 # @author Spikehidden
-# @date 2022/09/25
-# @denizen-build REL-1765
+# @date 2022/09/27
+# @denizen-build 6477-DEV
 # @script-version 1.0
 #
 # + REQUIREMENTS + Incorrect
-# - PlaceholderAPI      | https://placeholderapi.com
 # - Denizen             | https://github.com/DenizenScript/Denizen
-# - Depenizen           | https://github.com/DenizenScript/Depenizen
-# - Vault               | https://www.spigotmc.org/resources/34315/
 #
 # + Required or recommended for some features +
 # - NONE
@@ -57,6 +54,8 @@
 # - Twitch:     https://spikey.biz/twitch
 # - Ko-Fi:      https://spikey.biz/kofi
 
+### CONFIG ###
+
 dTranslate:
     type: data
     api:
@@ -67,10 +66,12 @@ dTranslate:
         # url: https://libretranslate.de
         # "translate.terraprint.co" has often server errors.
         url: https://translate.terraprint.co
+        # A list of other servers that can be used can be found on their GitHub: https://github.com/LibreTranslate/LibreTranslate
+
         #- Your API key if you need one. If none is neceserry use "none".
         key: none
         # Ratelimit is not used at the moment.
-        ratelimit: 20
+        # ratelimit: 20
     translate:
         cache:
             enabled: true
@@ -136,12 +137,14 @@ dTranslate:
         # Ukranian
         - uk
 
-dTranslateFormat:
-    type: format
-    format: <blue><bold>[dTranslate]<reset> <yellow><[text]><reset>
+#-- ADVANCED CONFIG --#
+#- Edit the format of how Auto-Translated messages are shown.
 dTranslateChatFormat:
     type: format
     format: <aqua><[name]><white><&sq>s translated<&co> <gray><[text]><reset>
+
+### CONFIG END ###
+### DO NOT EDIT ANYTHING BELOW THIS LINE IF YOU DO NOT KNOW WHAT YOU ARE DOING! ###
 
 dTranslateTranstask:
     type: task
@@ -151,49 +154,74 @@ dTranslateTranstask:
         # Get Cache Config
         - define cache <script[dTranslate].data_key[translate.cache.enabled].if_null[true]>
         - define cacheTime <script[dTranslate].data_key[translate.cache.time].if_null[7d].as[duration]>
-        # Get API stuff
-        - define uri <script[dTranslate].parsed_key[api.url]>
-        - define endpoint translate
-        - define url <[uri]>/<[endpoint]>
 
+        # Check if a cached result exists.
         - if <[cache]> && <server.has_flag[dTranslate.cache.<[chat]>.<[target]>]>:
             - define trans_txt <server.flag[dTranslate.cache.<[chat]>.<[target]>]>
-        - define s_lang <[source]>
-        - define t_lang <[target]>
-        - define format text
-        - define q <[chat]>
-        - definemap headers:
-            Content-Type: application/json
-        - definemap data:
-            q: <[q]>
-            source: <[s_lang]>
-            target: <[t_lang]>
+
+        # Check if cached result could be found.
+        # If not get translation from API
         - if !<[trans_txt].exists>:
+            # Get API stuff
+            - define uri <script[dTranslate].parsed_key[api.url]>
+            - define endpoint translate
+            - define url <[uri]>/<[endpoint]>
+            # Defining data for the API request
+            - define format text
+            - define q <[chat]>
+            - define key <script[dTranslate].data_key[api.key].if_null[none]>
+            # Define headers map
+            - definemap headers:
+                Content-Type: application/json
+            # Define data map
+            - definemap data:
+                q: <[q]>
+                source: <[source]>
+                target: <[target]>
+            # Add API key to data map if existent.
+            - if <[key]> != none:
+                - define <[data].with[api_key].as[<[key]>]>
+            # Start API request Loop
             - repeat 10 as:loop:
                 - ~webget <[url]> data:<[data].to_json> method:post headers:<[headers]> save:temp_json timeout:3s
+                # Check for any errors
                 - if <entry[temp_json].failed>:
+                    # Check if status codes was returned/could connect.
                     - if !<entry[temp_json].status.exists>:
+                        # If not try again if loops are not exceeded. Else save Error to definition.
                         - if <[loop]> >= 3:
                             - define error "Could not connect to <[url]>"
                             - repeat stop
                         - repeat next
+                    #- HTTP 502
                     - else if <entry[temp_json].status> == 502:
+                        # If not try again if loops are not exceeded. Else save Error to definition.
                         - if <[loop]> >= 3:
                             - define error "The server returned a <&dq>502 - BAD GATEWAY<&dq> Error!"
                             - repeat stop
                         - repeat next
                     - else:
-                        - define error "The server returned an error<&co> <&dq><entry[temp_json].result.parse_yaml.get[error]><&dq> | <entry[temp_json].status>"
-                        - repeat stop
+                        # If not try again if loops are not exceeded. Else save Error to definition.
+                        - if <[loop]> >= 3:
+                            - define error "The server returned an error<&co> <&dq><entry[temp_json].result.parse_yaml.get[error]><&dq> | <entry[temp_json].status>"
+                            - repeat stop
+                        - repeat next
+                # When succesfull stop repeat.
                 - else:
                     - repeat stop
+            # If error exists send saved error message.
             - if <[error].exists>:
                 - debug error "<&lb>dTranslate<&rb> <[error].if_null[An error occured!]>"
+            # When it was succesfull though extract translated text from json.
             - else:
                 - define trans_txt <entry[temp_json].result.parse_yaml.get[translatedText]>
+                # If cache is enabled cache the result to a flag.
                 - if <[cache]>:
                     - flag server dTranslate.cache.<[chat]>.<[target]>:<[trans_txt]> expire:<[cacheTime]>
 
+dTranslateFormat:
+    type: format
+    format: <blue><bold>[dTranslate]<reset> <yellow><[text]><reset>
 
 dTranslateChat:
     type: world
@@ -250,23 +278,6 @@ dTranslateChat:
                     - define lang_groups:->:<[tt_lang]>
             # Get translations
             - foreach <[lang_groups]> as:target:
-                # - if <[cache]> && <server.has_flag[dTranslate.cache.<[chat]>.<[value]>]>:
-                #     - define <[value]>_txt <server.flag[dTranslate.cache.<[chat]>.<[value]>]>
-                # - define s_lang <[lang].url_encode>
-                # - define t_lang <[value].url_encode>
-                # - define format text
-                # - define q <[chat].url_encode>
-                # - definemap headers:
-                #     Content-Type: application/x-www-form-urlencoded
-                # - define data q=<[q]>&source=<[s_lang]>&target=<[t_lang]>
-                # - ~webget <[url]> data:<[data]> headers:<[headers]> save:temp_json
-                # - if <entry[temp_json].failed>:
-                #     - if <entry[temp_json].status.is_empty>:
-                #         - define error "Could not connect to <[url]>"
-                #     - else:
-                #         - define error "The server returned an error<&co> <&dq><entry[temp_json].result><&dq> | <entry[temp_json].status>"
-                #     - debug error "<&lb>dTranslate<&rb> <[error].if_null[An error occured!]>"
-                #     - foreach next
                 - inject dTranslateTranstask
                 - if <entry[temp_json].failed>:
                     - foreach next

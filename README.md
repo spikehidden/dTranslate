@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/github/license/Spikehidden/dTranslate?logo=Creative%20commons)](#LICENSE)
 [![issues - dTranslate](https://img.shields.io/github/issues/Spikehidden/dTranslate)](https://github.com/Spikehidden/dTranslate/issues)
 
-[![Discord](https://img.shields.io/discord/731894292557201529?label=Discord&logo=Discord)](https://spikey.biz/discord)
+[![Discord](https://img.shields.io/discord/1160187133424848969?label=Discord&logo=Discord)](https://spkfox.de/discord)
 [![Ko-Fi - Donate](https://img.shields.io/badge/Ko--Fi-Donate-FF5E5B?logo=Ko-Fi&logoColor=white&color=blue)](https://spikey.biz/kofi)
 [![Twitch - Subscribe](https://img.shields.io/badge/Twitch-Subscribe-9146FF?logo=Twitch&logoColor=white)](https://spikey.biz/twitch)
 
